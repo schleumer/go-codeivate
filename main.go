@@ -125,6 +125,7 @@ func main() {
 
   update := func () {
     for {
+      // restart body
       ui.Body = ui.NewGrid()
       ui.Body.Width = ui.TermWidth()
 
@@ -134,9 +135,8 @@ func main() {
       }
 
       defer resp.Body.Close()
-      // Read the content into a byte array
-      body, err := ioutil.ReadAll(resp.Body)
 
+      body, err := ioutil.ReadAll(resp.Body)
       if err != nil {
         done <- true
         println(err)
@@ -151,7 +151,7 @@ func main() {
         println(err)
       }
 
-      /* i have no idea what i'm doing, but it's fucking hardcore */
+      // i have no idea what i'm doing, but it's fucking hardcore
       hours := math.Floor(statistic.TimeSpent / 3600)
       minutes := math.Floor((statistic.TimeSpent - (hours * 3600)) / 60)
 
@@ -177,9 +177,6 @@ func main() {
       sort.Sort(PlatformByPoints(platforms))
 
       for _, platform := range platforms {
-        // PercentWork
-        // Points
-        // Time
         hours := math.Floor(platform.Time / 3600)
         minutes := math.Floor((platform.Time - (hours * 3600)) / 60)
         platformsContent = append(platformsContent, fmt.Sprintf("%s - Percent: %.2f - Points: %.2f - Time: %.0f hours %.0f minutes", platform.Name, platform.PercentWork, platform.Points, hours, minutes))
@@ -200,13 +197,15 @@ func main() {
       for name, lang := range statistic.Languages {
         level, err := ParseLevel(lang.Level)
         if err != nil {
-          /* don't give a fuck */ continue
+          // don't give a fuck 
+          continue
         }
         languages = append(languages, Language{name, lang.Points, level.Number, level.Percent})
       }
 
       if err != nil {
-        /* don't give a fuck */ continue
+        // don't give a fuck 
+        continue
       }
 
       sort.Sort(ByLevel(languages))
@@ -253,7 +252,6 @@ func main() {
       case <-done:
         return
       case <-redraw:
-        println("lel")
         ui.Render(ui.Body)
         ui.Body.Align()
     }
