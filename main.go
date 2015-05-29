@@ -279,6 +279,11 @@ func main() {
       ui.Body.Align()
 
       redraw <- true
+
+      // if everything went ok
+      if firstRound {
+        firstRound = false
+      }
       time.Sleep(time.Second * 10)
     }
   }
