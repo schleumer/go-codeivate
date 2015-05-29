@@ -154,15 +154,18 @@ func main() {
       ui.Body = ui.NewGrid()
       ui.Body.Width = ui.TermWidth()
 
-      resp, err := http.Get(fmt.Sprintf("http://codeivate.com/users/%s.json", username))
+      client := &http.Client{}
+      req, err := http.NewRequest("GET", fmt.Sprintf("http://codeivate.com/users/%s.json", username), nil)
+      req.Close = true
+      req.Header.Set("Content-Type", "application/json")
+      resp, err := client.Do(req)
+
       if err != nil {
         HandleMeLikeOneOfYourFrenchGirls(err)
         redraw <- true
         time.Sleep(time.Second * 5)
         continue
       }
-
-      defer resp.Body.Close()
 
       body, err := ioutil.ReadAll(resp.Body)
       if err != nil {
@@ -240,7 +243,7 @@ func main() {
         }
         languages = append(languages, Language{name, lang.Points, level.Number, level.Percent})
       }
-      
+
       sort.Sort(ByLevel(languages))
       
       for _, lang := range languages[:numberOfLanguages] {
