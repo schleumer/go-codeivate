@@ -18,6 +18,8 @@ import (
   "sort"
   "fmt"
   "math"
+  "flag"
+  "log"
 )
 
 type LangStatistic struct {
@@ -110,7 +112,12 @@ func ParseLevel(strLevel string) (Level, error) {
   return Level{level, percent}, nil
 }
 
-func main() {
+func boot() string {
+  // yeah, if there's no username you'll see my profile :3
+  var username string
+  flag.StringVar(&username, "username", "schleumer", "your codeivate username")
+  flag.Parse()
+
   err := ui.Init()
   if err != nil {
     panic(err)
@@ -121,6 +128,7 @@ func main() {
   
   done := make(chan bool)
   redraw := make(chan bool)
+  error := make(chan string)
 
   ui.Body.Align()
 
@@ -130,8 +138,9 @@ func main() {
       ui.Body = ui.NewGrid()
       ui.Body.Width = ui.TermWidth()
 
-      resp, err := http.Get("http://codeivate.com/users/schleumer.json")
+      resp, err := http.Get(fmt.Sprintf("http://codeivate.com/users/%s.json", username))
       if err != nil {
+        error <- "Error on request"
         return
       }
 
@@ -139,13 +148,16 @@ func main() {
 
       body, err := ioutil.ReadAll(resp.Body)
       if err != nil {
-        done <- true
-        println(err)
+        error <- "Error on reading response"
         return
       }
 
       var statistic UserStatistic
       err = json.Unmarshal(body, &statistic)
+      if err != nil {
+        error <- fmt.Sprintf("Error on unmarshaling, probably the user %s doesn't exists", username)
+        return
+      }
 
       userLevel, err := ParseLevel(statistic.Level)
       if err != nil {
@@ -243,7 +255,7 @@ func main() {
     select {
       case e := <-evt:
         if e.Type == ui.EventKey && e.Ch == 'q' {
-          return
+          return "Everything went better than expected"
         }
         if e.Type == ui.EventResize {
           ui.Body.Width = ui.TermWidth()
@@ -251,10 +263,17 @@ func main() {
           go func() { redraw <- true }()
         }
       case <-done:
-        return
+        return "Everything went better than expected"
+      case e := <-error:
+        return e
       case <-redraw:
         ui.Render(ui.Body)
         ui.Body.Align()
     }
   }
+}
+
+func main() {
+  i_bet_its_not_ok := boot()
+  log.Printf(i_bet_its_not_ok)
 }
