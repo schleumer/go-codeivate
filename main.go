@@ -51,7 +51,7 @@ type Platform struct {
 }
 
 type UserStatistic struct {
-  PossibleCurrentLanguageBecausePHPProgrammersDoesntKnowsTheDifferenceBetweenBooleanAndFalseThanks interface{} `json:"current_language,omitempty"`
+  PossibleCurrentLanguageBecausePHPProgrammersDoesntKnowsTheDifferenceBetweenBooleanAndStringThanks interface{} `json:"current_language,omitempty"`
   CurrentLanguage string
   FocusLevel string `json:"focus_level"`
   FocusPoints float64 `json:"focus_points"`
@@ -192,7 +192,7 @@ func main() {
         continue
       }
 
-      switch str := statistic.PossibleCurrentLanguageBecausePHPProgrammersDoesntKnowsTheDifferenceBetweenBooleanAndFalseThanks.(type) {
+      switch str := statistic.PossibleCurrentLanguageBecausePHPProgrammersDoesntKnowsTheDifferenceBetweenBooleanAndStringThanks.(type) {
         case string:
           statistic.CurrentLanguage = str
         default:
