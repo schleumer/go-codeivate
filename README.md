@@ -36,7 +36,7 @@ go build main.go
 start "" "main.exe" -username your_nice_username
 ```
 
-This will avoid termbox to overwrite cmd settings(yeah)
+This will avoid termbox to overwrite `cmd`'s settings(yeah)
 
 
 # NOTICE ME SENPAI
