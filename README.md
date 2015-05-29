@@ -40,6 +40,6 @@ This will avoid termbox to overwrite `cmd`'s settings(yeah)
 
 # THANKS FOR MAKE MY CODE SUCKS MORE
 
-![Imgur](http://i.imgur.com/azrUXM8.png)
+![Imgur](http://i.imgur.com/g43ERTQ.png)
 
 # NOTICE ME SENPAI
