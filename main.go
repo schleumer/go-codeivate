@@ -20,6 +20,7 @@ import (
   "math"
   "flag"
   "log"
+  "errors"
 )
 
 type LangStatistic struct {
@@ -112,6 +113,18 @@ func ParseLevel(strLevel string) (Level, error) {
   return Level{level, percent}, nil
 }
 
+func HandleMeLikeOneOfYourFrenchGirls(err error) {
+  parUser := ui.NewPar(err.Error())
+  parUser.Height = 3
+  parUser.Width = 50
+  parUser.TextFgColor = ui.ColorWhite
+  parUser.Border.Label = "Erro acontece nada ocorre feijoada"
+  parUser.Border.FgColor = ui.ColorCyan
+
+  ui.Body.AddRows(
+      ui.NewRow(ui.NewCol(12, 0, parUser)))
+}
+
 func main() {
   // yeah, if there's no username you'll see my profile :3
   var username string
@@ -140,16 +153,7 @@ func main() {
 
       resp, err := http.Get(fmt.Sprintf("http://codeivate.com/users/%s.json", username))
       if err != nil {
-        parUser := ui.NewPar(err.Error())
-        parUser.Height = 3
-        parUser.Width = 50
-        parUser.TextFgColor = ui.ColorWhite
-        parUser.Border.Label = "Erro acontece nada ocorre feijoada"
-        parUser.Border.FgColor = ui.ColorCyan
-
-        ui.Body.AddRows(
-            ui.NewRow(ui.NewCol(12, 0, parUser)))
-
+        HandleMeLikeOneOfYourFrenchGirls(err)
         redraw <- true
         time.Sleep(time.Second * 5)
         continue
@@ -159,20 +163,27 @@ func main() {
 
       body, err := ioutil.ReadAll(resp.Body)
       if err != nil {
-        error <- "Error on reading response"
-        return
+        HandleMeLikeOneOfYourFrenchGirls(err)
+        redraw <- true
+        time.Sleep(time.Second * 5)
+        continue
       }
 
       var statistic UserStatistic
       err = json.Unmarshal(body, &statistic)
       if err != nil {
-        error <- fmt.Sprintf("Error on unmarshaling, probably the user %s doesn't exists", username)
-        return
+        HandleMeLikeOneOfYourFrenchGirls(errors.New(fmt.Sprintf("Error on unmarshaling, probably the user %s doesn't exists", username)))
+        redraw <- true
+        time.Sleep(time.Second * 60)
+        continue
       }
 
       userLevel, err := ParseLevel(statistic.Level)
       if err != nil {
-        println(err)
+        HandleMeLikeOneOfYourFrenchGirls(err)
+        redraw <- true
+        time.Sleep(time.Second * 5)
+        continue
       }
 
       // i have no idea what i'm doing, but it's fucking hardcore
