@@ -15,4 +15,4 @@ start "" "main.exe" -username your_nice_username
 # this will avoid termbox to overwrite cmd settings(yeah)
 ```
 
-`go get a life`
+# NOTICE ME SENPAI
