@@ -140,8 +140,19 @@ func main() {
 
       resp, err := http.Get(fmt.Sprintf("http://codeivate.com/users/%s.json", username))
       if err != nil {
-        error <- "Error on request"
-        return
+        parUser := ui.NewPar(err.Error())
+        parUser.Height = 3
+        parUser.Width = 50
+        parUser.TextFgColor = ui.ColorWhite
+        parUser.Border.Label = "Erro acontece nada ocorre feijoada"
+        parUser.Border.FgColor = ui.ColorCyan
+
+        ui.Body.AddRows(
+            ui.NewRow(ui.NewCol(12, 0, parUser)))
+
+        redraw <- true
+        time.Sleep(time.Second * 5)
+        continue
       }
 
       defer resp.Body.Close()
@@ -240,7 +251,7 @@ func main() {
       ui.Render(ui.Body)
       ui.Body.Align()
 
-      done <- true
+      redraw <- true
       time.Sleep(time.Second * 10)
     }
   }
@@ -270,8 +281,8 @@ func main() {
         log.Fatal(e)
         return
       case <-redraw:
-        ui.Render(ui.Body)
         ui.Body.Align()
+        ui.Render(ui.Body)
     }
   }
 }
