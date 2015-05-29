@@ -38,5 +38,8 @@ start "" "main.exe" -username your_nice_username
 
 This will avoid termbox to overwrite `cmd`'s settings(yeah)
 
+# THANKS FOR MAKE MY CODE SUCKS MORE
+
+[Imgur](http://i.imgur.com/i4u7PY2.png)
 
 # NOTICE ME SENPAI
