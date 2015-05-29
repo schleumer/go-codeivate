@@ -129,7 +129,9 @@ func HandleMeLikeOneOfYourFrenchGirls(err error) {
 func main() {
   // yeah, if there's no username you'll see my profile :3
   var username string
+  var numberOfLanguages int
   flag.StringVar(&username, "username", "schleumer", "your codeivate username")
+  flag.IntVar(&numberOfLanguages, "len", 10, "number of languages to display")
   flag.Parse()
 
   err := ui.Init()
@@ -246,7 +248,7 @@ func main() {
 
       sort.Sort(ByLevel(languages))
       
-      for _, lang := range languages[:8] {
+      for _, lang := range languages[:numberOfLanguages] {
         g := ui.NewGauge()
         g.Percent = int(lang.Percent)
         g.Width = 50
