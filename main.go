@@ -1,4 +1,5 @@
 // Number One rule: it's compiling it's working, no tests needed
+// Number Two: it's freaking imperative
 // Copyright AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -65,10 +66,10 @@ type UserStatistic struct {
   Languages map[string]LangStatistic `json:"languages"`
 }
 
-type ByLevel []Language
-func (v ByLevel) Len() int { return len(v) }
-func (v ByLevel) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
-func (v ByLevel) Less(i, j int) bool { 
+type LanguageByLevel []Language
+func (v LanguageByLevel) Len() int { return len(v) }
+func (v LanguageByLevel) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
+func (v LanguageByLevel) Less(i, j int) bool { 
   if v[i].Level == v[j].Level {
     if v[i].Points == v[j].Points {
       return v[i].Name > v[j].Name
@@ -117,10 +118,7 @@ func ParseLevel(strLevel string) (Level, error) {
 func HandleMeLikeOneOfYourFrenchGirls(err error) {
   parUser := ui.NewPar(err.Error())
   parUser.Height = 3
-  parUser.Width = 50
-  parUser.TextFgColor = ui.ColorWhite
   parUser.Border.Label = "Erro acontece nada ocorre feijoada"
-  parUser.Border.FgColor = ui.ColorCyan
 
   ui.Body.AddRows(
       ui.NewRow(ui.NewCol(12, 0, parUser)))
@@ -148,6 +146,9 @@ func main() {
 
   ui.Body.Align()
 
+  var startPoints float64
+  firstRound := true
+
   update := func () {
     for {
       // restart body
@@ -159,7 +160,7 @@ func main() {
       req.Close = true
       req.Header.Set("Content-Type", "application/json")
       req.Header.Set("User-Agent", "NOTICE ME SENPAI v0.1a")
-      
+
       resp, err := client.Do(req)
 
       if err != nil {
@@ -197,13 +198,31 @@ func main() {
       // i have no idea what i'm doing, but it's fucking hardcore
       hours := math.Floor(statistic.TimeSpent / 3600)
       minutes := math.Floor((statistic.TimeSpent - (hours * 3600)) / 60)
+      var totalPoints float64
+      var pointsSinceFirstRound float64
 
-      parUser := ui.NewPar(fmt.Sprintf("Level: %d - Percent: %.0f - Time: %.0f hours %.0f minutes - Current Language: %s", userLevel.Number, userLevel.Percent, hours, minutes, statistic.CurrentLanguage))
-      parUser.Height = 3
-      parUser.Width = 50
-      parUser.TextFgColor = ui.ColorWhite
+      for _, lang := range statistic.Languages {
+        totalPoints += lang.Points
+      }
+
+      if firstRound {
+        startPoints = totalPoints
+      }
+
+      pointsSinceFirstRound = totalPoints - startPoints
+
+      parUser := ui.NewPar(
+        fmt.Sprintf("Level: %d - Percent: %.0f\nTime: %.0f hours %.0f minutes - Current Language: %s\nPoints: %.0f(%.0f)", 
+          userLevel.Number, 
+          userLevel.Percent, 
+          hours, 
+          minutes, 
+          statistic.CurrentLanguage, 
+          totalPoints, 
+          pointsSinceFirstRound))
+
+      parUser.Height = 5
       parUser.Border.Label = "User Info"
-      parUser.Border.FgColor = ui.ColorCyan
 
       ui.Body.AddRows(
           ui.NewRow(ui.NewCol(12, 0, parUser)))
@@ -227,10 +246,7 @@ func main() {
 
       parWorkspace := ui.NewPar(strings.Join(platformsContent, "\n"))
       parWorkspace.Height = len(statistic.Platforms) + 2
-      parWorkspace.Width = 50
-      parWorkspace.TextFgColor = ui.ColorWhite
       parWorkspace.Border.Label = "Workspace Info"
-      parWorkspace.Border.FgColor = ui.ColorCyan
 
       ui.Body.AddRows(
           ui.NewRow(ui.NewCol(12, 0, parWorkspace)))
@@ -246,17 +262,14 @@ func main() {
         languages = append(languages, Language{name, lang.Points, level.Number, level.Percent})
       }
 
-      sort.Sort(ByLevel(languages))
+      sort.Sort(LanguageByLevel(languages))
       
       for _, lang := range languages[:numberOfLanguages] {
         g := ui.NewGauge()
         g.Percent = int(lang.Percent)
-        g.Width = 50
         g.Height = 3
         g.Border.Label = fmt.Sprintf("%s Level: %d - Points: %.0f", lang.Name, lang.Level, lang.Points)
-        g.BarColor = ui.ColorRed
-        g.Border.FgColor = ui.ColorWhite
-        g.Border.LabelFgColor = ui.ColorCyan
+        g.BarColor = ui.ColorGreen
   
         ui.Body.AddRows(
           ui.NewRow(ui.NewCol(12, 0, g)))
