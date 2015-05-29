@@ -240,12 +240,7 @@ func main() {
         }
         languages = append(languages, Language{name, lang.Points, level.Number, level.Percent})
       }
-
-      if err != nil {
-        // don't give a fuck 
-        continue
-      }
-
+      
       sort.Sort(ByLevel(languages))
       
       for _, lang := range languages[:numberOfLanguages] {
