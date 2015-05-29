@@ -159,6 +159,7 @@ func main() {
       req.Close = true
       req.Header.Set("Content-Type", "application/json")
       req.Header.Set("User-Agent", "NOTICE ME SENPAI v0.1a")
+      
       resp, err := client.Do(req)
 
       if err != nil {
