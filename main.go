@@ -112,7 +112,7 @@ func ParseLevel(strLevel string) (Level, error) {
   return Level{level, percent}, nil
 }
 
-func boot() string {
+func main() {
   // yeah, if there's no username you'll see my profile :3
   var username string
   flag.StringVar(&username, "username", "schleumer", "your codeivate username")
@@ -240,7 +240,7 @@ func boot() string {
       ui.Render(ui.Body)
       ui.Body.Align()
 
-      redraw <- true
+      done <- true
       time.Sleep(time.Second * 10)
     }
   }
@@ -250,12 +250,13 @@ func boot() string {
 
   ui.Render(ui.Body)
   go update()
-
+  
   for {
     select {
       case e := <-evt:
         if e.Type == ui.EventKey && e.Ch == 'q' {
-          return "Everything went better than expected"
+          log.Print("Everything went better than expected")
+          return
         }
         if e.Type == ui.EventResize {
           ui.Body.Width = ui.TermWidth()
@@ -263,17 +264,14 @@ func boot() string {
           go func() { redraw <- true }()
         }
       case <-done:
-        return "Everything went better than expected"
+        log.Print("Everything went better than expected")
+        return
       case e := <-error:
-        return e
+        log.Fatal(e)
+        return
       case <-redraw:
         ui.Render(ui.Body)
         ui.Body.Align()
     }
   }
-}
-
-func main() {
-  i_bet_its_not_ok := boot()
-  log.Printf(i_bet_its_not_ok)
 }
