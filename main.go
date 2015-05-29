@@ -279,7 +279,7 @@ func main() {
   for {
     select {
       case e := <-evt:
-        if e.Type == ui.EventKey && e.Ch == 'q' {
+        if e.Type == ui.EventKey && (e.Ch == 'q' || e.Ch == 'Q' /* HEHEHEHE */) {
           log.Print("Everything went better than expected")
           return
         }
