@@ -3,10 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"strings"
-  "io"
 )
 
 const (
@@ -38,20 +38,20 @@ func main() {
 
 // Handles incoming requests.
 func handleRequest(conn net.Conn) {
-  defer conn.Close()
+	defer conn.Close()
 	// Read loop
 	for {
 		// Make a buffer to hold incoming data.
 		// Read the incoming connection into a string.
 		status, err := bufio.NewReader(conn).ReadString('\n')
 
-    if err == io.EOF {
-      fmt.Println("Client disconnected")
-      break
-    } else if err != nil {
-      fmt.Println("Error reading:", err.Error())
-      break
-    }
+		if err == io.EOF {
+			fmt.Println("Client disconnected")
+			break
+		} else if err != nil {
+			fmt.Println("Error reading:", err.Error())
+			break
+		}
 
 		status = strings.Replace(status, "\r", "", -1)
 		status = strings.Replace(status, "\n", "", -1)
