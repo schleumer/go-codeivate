@@ -26,17 +26,16 @@ go get github.com/gizak/termui
 ### On cool OSes
 
 ``` 
-go run main.go -username your_nice_username
+./run
 ```
 
 ### If you are using Windows you need to execute that way
 
 ```
-go build main.go
-start "" "main.exe" -username your_nice_username
+run.bat
 ```
 
-This will avoid termbox to overwrite `cmd`'s settings(yeah)
+This will open another window to avoid termbox to overwrite `cmd`'s settings(yeah)
 
 # THANKS FOR MAKE MY CODE SUCKS MORE
 

@@ -1,5 +1,7 @@
 #/usr/bin/env bash
 
+rm go-codeivate
+
 go build -v -o go-codeivate main.go
 
 chmod +x go-codeivate
