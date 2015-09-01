@@ -19,6 +19,7 @@ Get dependencies
 ```
 go get github.com/nsf/termbox-go
 go get github.com/gizak/termui
+go get github.com/kardianos/osext
 ```
 
 # Running
