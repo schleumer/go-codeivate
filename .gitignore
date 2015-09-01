@@ -22,3 +22,9 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+./go-codeivate
+./go-codeivate.exe
+
+cache/*
+!cache/empty

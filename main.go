@@ -1,4 +1,6 @@
-// Number One rule: it's compiling it's working, no tests needed
+// Rules:
+// Number Zero: i rule
+// Number One: it's compiling it's working, no tests needed
 // Number Two: it's freaking imperative
 // Copyright AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -9,6 +11,7 @@ package main
 
 import (
   ui "github.com/gizak/termui"
+  "github.com/kardianos/osext"
   "time"
   "strconv"
   "net/http"
@@ -21,6 +24,8 @@ import (
   "flag"
   "log"
   "errors"
+  "path"
+  "os"
 )
 
 type LangStatistic struct {
@@ -63,6 +68,12 @@ type UserStatistic struct {
   TotalFlowStates float64 `json:"total_flow_states"`
   Platforms map[string]PlatformStatistic `json:"platforms"`
   Languages map[string]LangStatistic `json:"languages"`
+  TotalPoints float64
+}
+
+type PointsCache struct {
+  FocusPoints float64 `json:"focus_points"`
+  TotalPoints float64 `json:"total_points"`
 }
 
 type LanguageByLevel []Language
@@ -123,6 +134,36 @@ func HandleMeLikeOneOfYourFrenchGirls(err error) {
       ui.NewRow(ui.NewCol(12, 0, parUser)))
 }
 
+func GetPointsCacheFileName() string {
+  dir, _ := osext.ExecutableFolder()
+  return path.Join(dir, "cache", time.Now().Format("2006-01-02.json"))
+}
+
+func GetPointsCache(stats UserStatistic) (float64, float64) {
+  var filename = GetPointsCacheFileName()
+
+  if _, err := os.Stat(filename); os.IsNotExist(err) {
+    var cache PointsCache = PointsCache{stats.FocusPoints, stats.TotalPoints}
+    
+    var json, _ = json.Marshal(cache)
+    var f, _ = os.Create(filename)
+
+    f.Write(json)
+    
+    return stats.TotalPoints, stats.FocusPoints
+  }
+
+  var cache = PointsCache{}
+  var configFile, _ = os.Open(filename)
+  var parser = json.NewDecoder(configFile)
+
+  if err := parser.Decode(&cache); err != nil {
+    log.Fatal(err)
+  }
+
+  return cache.TotalPoints, cache.FocusPoints
+}
+
 func main() {
   // yeah, if there's no username you'll see my profile :3
   var username string
@@ -146,6 +187,7 @@ func main() {
   ui.Body.Align()
 
   var startPoints float64
+  var startFocusPoints float64
   firstRound := true
 
   update := func () {
@@ -190,12 +232,15 @@ func main() {
         continue
       }
 
+
+
       switch str := statistic.PossibleCurrentLanguageBecausePHPProgrammersDoesntKnowTheDifferenceBetweenBooleanAndStringThanks.(type) {
         case string:
           statistic.CurrentLanguage = str
         default:
           statistic.CurrentLanguage = "" 
       }
+
 
       userLevel, err := ParseLevel(statistic.Level)
       if err != nil {
@@ -210,26 +255,34 @@ func main() {
       minutes := math.Floor((statistic.TimeSpent - (hours * 3600)) / 60)
       var totalPoints float64
       var pointsSinceFirstRound float64
+      var focusPointsSinceFirstRound float64
 
       for _, lang := range statistic.Languages {
         totalPoints += lang.Points
       }
 
+      statistic.TotalPoints = totalPoints;
+
       if firstRound {
-        startPoints = totalPoints
+        startPoints, startFocusPoints = GetPointsCache(statistic)
       }
 
       pointsSinceFirstRound = totalPoints - startPoints
+      focusPointsSinceFirstRound = statistic.FocusPoints - startFocusPoints
+
 
       parUser := ui.NewPar(
-        fmt.Sprintf("Level: %d - Percent: %.0f\nTime: %.0f hours %.0f minutes - Current Language: %s\nPoints: %.0f(%.0f)", 
+        fmt.Sprintf("Level: %d - Percent: %.0f\nTime: %.0f hours %.0f minutes - Current Language: %s\nPoints: langs: %.0f/focus: %0.f(focus: %.0f - langs: %.0f - total: %.0f)",
           userLevel.Number, 
           userLevel.Percent, 
           hours, 
           minutes, 
           statistic.CurrentLanguage, 
-          totalPoints, 
-          pointsSinceFirstRound))
+          totalPoints,
+          statistic.FocusPoints,
+          pointsSinceFirstRound,
+          focusPointsSinceFirstRound,
+          pointsSinceFirstRound + focusPointsSinceFirstRound))
 
       parUser.Height = 5
       parUser.Border.Label = "User Info"
