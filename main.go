@@ -128,7 +128,7 @@ func ParseLevel(strLevel string) (Level, error) {
 func HandleMeLikeOneOfYourFrenchGirls(err error) {
   parUser := ui.NewPar(err.Error())
   parUser.Height = 3
-  parUser.Border.Label = "Erro acontece nada ocorre feijoada"
+  parUser.BorderLabel = "Erro acontece nada ocorre feijoada"
 
   ui.Body.AddRows(
       ui.NewRow(ui.NewCol(12, 0, parUser)))
@@ -178,11 +178,12 @@ func main() {
   }
   defer ui.Close()
 
+  //ui.UseTheme("helloworld")
   ui.UseTheme("helloworld")
   
   done := make(chan bool)
   redraw := make(chan bool)
-  error := make(chan string)
+  //error := make(chan string)
 
   ui.Body.Align()
 
@@ -285,7 +286,7 @@ func main() {
           pointsSinceFirstRound + focusPointsSinceFirstRound))
 
       parUser.Height = 5
-      parUser.Border.Label = "User Info"
+      parUser.BorderLabel = "User Info"
 
       ui.Body.AddRows(
           ui.NewRow(ui.NewCol(12, 0, parUser)))
@@ -309,7 +310,7 @@ func main() {
 
       parWorkspace := ui.NewPar(strings.Join(platformsContent, "\n"))
       parWorkspace.Height = len(statistic.Platforms) + 2
-      parWorkspace.Border.Label = "Workspace Info"
+      parWorkspace.BorderLabel = "Workspace Info"
 
       ui.Body.AddRows(
           ui.NewRow(ui.NewCol(12, 0, parWorkspace)))
@@ -331,7 +332,7 @@ func main() {
         g := ui.NewGauge()
         g.Percent = int(lang.Percent)
         g.Height = 3
-        g.Border.Label = fmt.Sprintf("%s Level: %d - Points: %.0f", lang.Name, lang.Level, lang.Points)
+        g.BorderLabel = fmt.Sprintf("%s Level: %d - Points: %.0f", lang.Name, lang.Level, lang.Points)
         g.BarColor = ui.ColorGreen
   
         ui.Body.AddRows(
@@ -352,32 +353,46 @@ func main() {
   }
   
 
-  evt := ui.EventCh()
+  //evt := ui.EventCh()
 
   ui.Render(ui.Body)
   go update()
+
+  ui.Handle("/sys/kbd/q", func(ui.Event) {
+    log.Print("Everything went better than expected")
+    ui.StopLoop()
+    done <- true
+  })
+
+  ui.Handle("/sys/wnd/resize", func(ui.Event) {
+    ui.Body.Width = ui.TermWidth()
+    ui.Body.Align()
+    go func() { redraw <- true }()
+  })
+
+  ui.Loop()
   
-  for {
-    select {
-      case e := <-evt:
-        if e.Type == ui.EventKey && (e.Ch == 'q' || e.Ch == 'Q' /* HEHEHEHE */) {
-          log.Print("Everything went better than expected")
-          return
-        }
-        if e.Type == ui.EventResize {
-          ui.Body.Width = ui.TermWidth()
-          ui.Body.Align()
-          go func() { redraw <- true }()
-        }
-      case <-done:
-        log.Print("Everything went better than expected")
-        return
-      case e := <-error:
-        log.Fatal(e)
-        return
-      case <-redraw:
-        ui.Body.Align()
-        ui.Render(ui.Body)
-    }
-  }
+  //for {
+  //  select {
+  //    //case e := <-evt:
+  //    //  if e.Type == ui.EventKey && (e.Ch == 'q' || e.Ch == 'Q' /* HEHEHEHE */) {
+  //    //    log.Print("Everything went better than expected")
+  //    //    return
+  //    //  }
+  //    //  if e.Type == ui.EventResize {
+  //    //    ui.Body.Width = ui.TermWidth()
+  //    //    ui.Body.Align()
+  //    //    go func() { redraw <- true }()
+  //    //  }
+  //    case <-done:
+  //      log.Print("Everything went better than expected")
+  //      return
+  //    case e := <-error:
+  //      log.Fatal(e)
+  //      return
+  //    case <-redraw:
+  //      ui.Body.Align()
+  //      ui.Render(ui.Body)
+  //  }
+  //}
 }
