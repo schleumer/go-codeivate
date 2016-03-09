@@ -165,6 +165,7 @@ func GetPointsCache(stats UserStatistic) (float64, float64) {
 }
 
 func main() {
+  ui.ColorMap["fg"] = ui.ColorRGB(0, 0, 0)
   // yeah, if there's no username you'll see my profile :3
   var username string
   var numberOfLanguages int
@@ -179,7 +180,7 @@ func main() {
   defer ui.Close()
 
   //ui.UseTheme("helloworld")
-  ui.UseTheme("helloworld")
+  //ui.UseTheme("helloworld")
   
   done := make(chan bool)
   redraw := make(chan bool)
@@ -228,7 +229,7 @@ func main() {
       if err != nil {
         //HandleMeLikeOneOfYourFrenchGirls(errors.New(fmt.Sprintf("Error on unmarshaling, probably the user %s doesn't exists [%s]", username, err.Error())))
         HandleMeLikeOneOfYourFrenchGirls(errors.New(fmt.Sprintf("[%s]", username, err.Error())))
-        redraw <- true
+        go func() { redraw <- true }()
         time.Sleep(time.Second * 60)
         continue
       }
@@ -246,7 +247,7 @@ func main() {
       userLevel, err := ParseLevel(statistic.Level)
       if err != nil {
         HandleMeLikeOneOfYourFrenchGirls(err)
-        redraw <- true
+        go func() { redraw <- true }()
         time.Sleep(time.Second * 5)
         continue
       }
@@ -342,7 +343,7 @@ func main() {
       ui.Render(ui.Body)
       ui.Body.Align()
 
-      redraw <- true
+      go func() { redraw <- true }()
 
       // if everything went ok
       if firstRound {
